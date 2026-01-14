@@ -27,12 +27,16 @@ const FIELD_IDS = {
     subjectCategories: 't392',
     subjectsCount: 't333',
     legalBasis: 't336',
+    legalBasisOther: 't600',
     legalAct: 't338',
     method: 't347',
     term: 't350',
     destruction: 't352',
     destructionFile: 't354'
 };
+
+// Special value for "Other" option in legal basis
+const LEGAL_BASIS_OTHER_VALUE = '__OTHER__';
 
 // Reference field names for API calls
 const REFERENCE_NAMES = [
@@ -252,11 +256,31 @@ function setupSearchListener() {
 /**
  * Setup dependent dropdown listeners
  * When "Цель обработки ПДн" changes, filter "Микроцель обработки ПДн"
+ * When "Основание обработки ПДн" changes, show/hide "Иное" textarea
  */
 function setupDependentDropdowns() {
     $(document).on('change', '#processPurpose', function() {
         filterMicroPurposeByPurpose();
     });
+
+    $(document).on('change', '#processLegalBasis', function() {
+        toggleLegalBasisOther();
+    });
+}
+
+/**
+ * Show/hide "Иное" textarea based on legal basis selection
+ */
+function toggleLegalBasisOther() {
+    const legalBasisValue = $('#processLegalBasis').val();
+    const otherGroup = $('#legalBasisOtherGroup');
+
+    if (legalBasisValue === LEGAL_BASIS_OTHER_VALUE) {
+        otherGroup.show();
+    } else {
+        otherGroup.hide();
+        $('#processLegalBasisOther').val('');
+    }
 }
 
 /**
@@ -410,7 +434,21 @@ function fillFormWithProcess(process) {
     }
 
     $('#processSubjectsCount').val(process['Количество субъектов ПДн'] || '');
-    $('#processLegalBasis').val(process['Основание обработки ПДн'] || '');
+
+    // Handle legal basis with "Иное" option
+    const legalBasisValue = process['Основание обработки ПДн'] || '';
+    const legalBasisOtherValue = process['Иное основание'] || '';
+
+    if (legalBasisOtherValue && !legalBasisValue) {
+        // "Иное" was selected - show "other" field
+        $('#processLegalBasis').val(LEGAL_BASIS_OTHER_VALUE);
+        $('#processLegalBasisOther').val(decodeHtmlEntities(legalBasisOtherValue));
+        toggleLegalBasisOther();
+    } else {
+        $('#processLegalBasis').val(legalBasisValue);
+        toggleLegalBasisOther();
+    }
+
     $('#processLegalAct').val(decodeHtmlEntities(process['Реквизиты нормативного правового акта'] || ''));
     $('#processMethod').val(process['Способ обработки ПДн'] || '');
     $('#processTerm').val(process['Срок обработки ПДн'] || '');
@@ -434,6 +472,8 @@ function resetForm() {
     $('#processSubjectCategories').val([]);
     $('#processSubjectsCount').val('');
     $('#processLegalBasis').val('');
+    $('#processLegalBasisOther').val('');
+    $('#legalBasisOtherGroup').hide();
     $('#processLegalAct').val('');
     $('#processMethod').val('');
     $('#processTerm').val('');
@@ -521,6 +561,11 @@ function populateSelect(selector, refName) {
             select.append('<option value="' + item[idField] + '">' + escapeHtml(item[valueField]) + '</option>');
         }
     });
+
+    // Add "Иное" option at the end for legal basis
+    if (refName === 'Основание обработки ПДн') {
+        select.append('<option value="' + LEGAL_BASIS_OTHER_VALUE + '">Иное</option>');
+    }
 }
 
 /**
@@ -560,11 +605,27 @@ function saveProcess() {
     const spinner = btn.find('.spinner-border');
     const btnText = btn.find('.btn-text');
 
-    // Validate
+    // Validate process name
     const processName = $('#processName').val().trim();
     if (!processName) {
         $('#formError').text('Укажите название процесса').show();
         $('#general-tab').tab('show');
+        return;
+    }
+
+    // Validate legal basis
+    const legalBasisValue = $('#processLegalBasis').val();
+    const legalBasisOtherValue = $('#processLegalBasisOther').val().trim();
+
+    if (!legalBasisValue) {
+        $('#formError').text('Укажите основание обработки ПДн').show();
+        $('#purpose-tab').tab('show');
+        return;
+    }
+
+    if (legalBasisValue === LEGAL_BASIS_OTHER_VALUE && !legalBasisOtherValue) {
+        $('#formError').text('При выборе "Иное" необходимо указать альтернативное основание').show();
+        $('#purpose-tab').tab('show');
         return;
     }
 
@@ -595,7 +656,17 @@ function saveProcess() {
     formData[FIELD_IDS.subjectCategories] = categories.join(',');
 
     formData[FIELD_IDS.subjectsCount] = $('#processSubjectsCount').val() || '';
-    formData[FIELD_IDS.legalBasis] = $('#processLegalBasis').val() || '';
+
+    // Handle legal basis with "Иное" option
+    if (legalBasisValue === LEGAL_BASIS_OTHER_VALUE) {
+        // When "Иное" is selected, save to t600 instead of t336
+        formData[FIELD_IDS.legalBasis] = '';
+        formData[FIELD_IDS.legalBasisOther] = legalBasisOtherValue;
+    } else {
+        formData[FIELD_IDS.legalBasis] = legalBasisValue;
+        formData[FIELD_IDS.legalBasisOther] = '';
+    }
+
     formData[FIELD_IDS.legalAct] = $('#processLegalAct').val() || '';
     formData[FIELD_IDS.method] = $('#processMethod').val() || '';
     formData[FIELD_IDS.term] = $('#processTerm').val() || '';
