@@ -84,16 +84,23 @@ $(document).ready(function() {
  * Setup horizontal scrolling for tabs using mouse wheel
  */
 function setupTabsHorizontalScroll() {
-    $(document).on('wheel', '#formTabs', function(event) {
-        event.preventDefault();
+    const tabsElement = document.getElementById('formTabs');
+    if (!tabsElement) return;
 
-        // Get scroll container
-        const container = this;
-        const scrollAmount = event.originalEvent.deltaY > 0 ? 100 : -100;
+    const handleWheel = function(event) {
+        if (event.target.closest('#formTabs')) {
+            event.preventDefault();
 
-        // Apply horizontal scroll
-        container.scrollLeft += scrollAmount;
-    });
+            // Get scroll container
+            const scrollAmount = event.deltaY > 0 ? 100 : -100;
+
+            // Apply horizontal scroll
+            tabsElement.scrollLeft += scrollAmount;
+        }
+    };
+
+    // Use { passive: false } to allow preventDefault()
+    tabsElement.addEventListener('wheel', handleWheel, { passive: false });
 }
 
 /**
