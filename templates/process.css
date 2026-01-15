@@ -137,55 +137,6 @@
 }
 
 /* Material Design Tab Styles */
-.nav-tabs-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    border-bottom: 1px solid #e0e0e0;
-    position: relative;
-}
-
-.nav-tabs-scroll-btn {
-    position: absolute;
-    width: 36px;
-    height: 48px;
-    background: none;
-    border: none;
-    color: #616161;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.2s ease;
-    opacity: 0;
-    pointer-events: none;
-    font-size: 18px;
-    z-index: 10;
-    top: 0;
-}
-
-.nav-tabs-scroll-btn#formTabsScrollLeft {
-    left: 0;
-}
-
-.nav-tabs-scroll-btn#formTabsScrollRight {
-    right: 0;
-}
-
-.nav-tabs-scroll-btn:hover:not(.hidden) {
-    color: #007bff;
-    background-color: rgba(0, 123, 255, 0.1);
-}
-
-.nav-tabs-scroll-btn.visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.nav-tabs-scroll-btn.hidden {
-    display: none;
-}
-
 .nav-tabs {
     display: flex;
     flex-wrap: nowrap;
@@ -193,7 +144,7 @@
     -webkit-overflow-scrolling: touch;
     gap: 0;
     scroll-behavior: smooth;
-    flex: 1;
+    border-bottom: 1px solid #e0e0e0;
 
     /* Hide scrollbars completely */
     scrollbar-width: none;  /* Firefox */
