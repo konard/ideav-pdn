@@ -32,12 +32,6 @@ export async function saveProcess(processId, data) {
   return response.json();
 }
 
-export async function fetchTabData(tabName, processId) {
-  const response = await fetch(`${API_BASE}report/proc%20${encodeURIComponent(tabName)}?JSON_KV&FR_procID=${processId}`);
-  if (!response.ok) throw new Error(`Failed to fetch ${tabName}`);
-  return response.json();
-}
-
 export const FIELD_MAPPING = {
   't294': 'Процесс',
   't297': 'Статус',
