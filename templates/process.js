@@ -77,6 +77,7 @@ $(document).ready(function() {
     setupSearchListener();
     setupDependentDropdowns();
     setupDataTabListeners();
+    setupFormTabsScrolling();
 });
 
 /**
@@ -1120,6 +1121,71 @@ function openTabRowEditModal(tabName, itemData) {
     // TODO: Open edit modal with item data
     // For now, show placeholder
     showNotification('Функция редактирования в разработке. Tab: ' + tabName + ', ID: ' + itemId, 'info');
+}
+
+/**
+ * Setup form tabs scrolling with chevron buttons
+ */
+function setupFormTabsScrolling() {
+    const tabsContainer = $('#formTabs');
+    const leftBtn = $('#formTabsScrollLeft');
+    const rightBtn = $('#formTabsScrollRight');
+
+    if (!tabsContainer.length) return;
+
+    // Check scroll state on load and window resize
+    function updateScrollButtons() {
+        setTimeout(function() {
+            const tabs = tabsContainer[0];
+            const hasScroll = tabs.scrollWidth > tabs.clientWidth;
+            const isAtStart = tabs.scrollLeft === 0;
+            const isAtEnd = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 5;
+
+            if (hasScroll) {
+                leftBtn.toggleClass('visible', !isAtStart);
+                rightBtn.toggleClass('visible', !isAtEnd);
+            } else {
+                leftBtn.removeClass('visible');
+                rightBtn.removeClass('visible');
+            }
+
+            leftBtn.prop('disabled', isAtStart);
+            rightBtn.prop('disabled', isAtEnd);
+        }, 100);
+    }
+
+    // Update on scroll
+    tabsContainer.on('scroll', updateScrollButtons);
+
+    // Update on window resize
+    $(window).on('resize', updateScrollButtons);
+
+    // Update on modal show
+    $('#processFormModal').on('shown.bs.modal', updateScrollButtons);
+
+    // Initial check
+    updateScrollButtons();
+}
+
+/**
+ * Scroll form tabs
+ */
+function scrollFormTabs(distance) {
+    const tabsContainer = $('#formTabs');
+    if (!tabsContainer.length) return;
+
+    const currentScroll = tabsContainer.scrollLeft();
+    tabsContainer.animate({ scrollLeft: currentScroll + distance }, 300);
+
+    // Update button states after scroll
+    setTimeout(function() {
+        const tabs = tabsContainer[0];
+        const isAtStart = tabs.scrollLeft === 0;
+        const isAtEnd = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 5;
+
+        $('#formTabsScrollLeft').prop('disabled', isAtStart).toggleClass('visible', !isAtStart);
+        $('#formTabsScrollRight').prop('disabled', isAtEnd).toggleClass('visible', !isAtEnd);
+    }, 300);
 }
 
 /**

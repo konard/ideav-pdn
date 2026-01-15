@@ -91,8 +91,10 @@
                 </button>
             </div>
             <div class="modal-body">
-                <!-- Tabs -->
-                <ul class="nav nav-tabs" id="formTabs" role="tablist">
+                <!-- Tabs with scroll buttons -->
+                <div class="nav-tabs-wrapper" id="formTabsWrapper">
+                    <button class="nav-tabs-scroll-btn" id="formTabsScrollLeft" onclick="scrollFormTabs(-120)" title="Scroll left">◀</button>
+                    <ul class="nav nav-tabs" id="formTabs" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" id="general-tab" data-toggle="tab" href="#generalTab" role="tab">Общая информация</a>
                     </li>
@@ -118,6 +120,8 @@
                         <a class="nav-link" id="transfer-tab" data-toggle="tab" href="#transferTab" role="tab">Передача</a>
                     </li>
                 </ul>
+                    <button class="nav-tabs-scroll-btn" id="formTabsScrollRight" onclick="scrollFormTabs(120)" title="Scroll right">▶</button>
+                </div>
 
                 <!-- Tab Content -->
                 <div class="tab-content pt-3" id="formTabContent">

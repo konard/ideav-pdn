@@ -137,32 +137,61 @@
 }
 
 /* Material Design Tab Styles */
+.nav-tabs-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.nav-tabs-scroll-btn {
+    flex-shrink: 0;
+    width: 40px;
+    height: 48px;
+    background: none;
+    border: none;
+    color: #616161;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0;
+    pointer-events: none;
+    font-size: 20px;
+}
+
+.nav-tabs-scroll-btn:hover:not(:disabled) {
+    color: #007bff;
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.nav-tabs-scroll-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.nav-tabs-scroll-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
 .nav-tabs {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    border-bottom: 1px solid #e0e0e0;
     gap: 0;
     scroll-behavior: smooth;
+    flex: 1;
+
+    /* Hide scrollbars completely */
+    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;  /* IE/Edge */
 }
 
-/* Hide scrollbar but keep functionality */
 .nav-tabs::-webkit-scrollbar {
-    height: 4px;
-}
-
-.nav-tabs::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.nav-tabs::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 2px;
-}
-
-.nav-tabs::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    display: none;  /* Chrome/Safari */
 }
 
 .nav-tabs .nav-item {
