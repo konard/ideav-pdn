@@ -897,23 +897,20 @@ function renderTabDataAsTable(tabName, items, columns) {
     columns.forEach(col => {
         html += '<th>' + escapeHtml(col) + '</th>';
     });
-    html += '<th>Действия</th>';
     html += '</tr>';
     html += '</thead>';
     html += '<tbody>';
 
     if (paginatedItems.length === 0) {
-        html += '<tr><td colspan="' + (columns.length + 1) + '" class="text-center text-muted py-3">Нет данных</td></tr>';
+        html += '<tr><td colspan="' + columns.length + '" class="text-center text-muted py-3">Нет данных</td></tr>';
     } else {
         paginatedItems.forEach((item, idx) => {
-            html += '<tr>';
+            html += '<tr class="tab-row-clickable" onclick="openTabRowEditModal(\'' + escapeHtml(tabName) + '\', ' + JSON.stringify(item).replace(/"/g, '&quot;') + ')" style="cursor: pointer;">';
             columns.forEach(col => {
-                html += '<td>' + escapeHtml(String(item[col] || '')) + '</td>';
+                const value = item[col];
+                let cellHtml = formatTabCellValue(value, col);
+                html += '<td>' + cellHtml + '</td>';
             });
-            html += '<td>';
-            html += '<button class="btn btn-xs btn-outline-primary mr-1" onclick="editTabRow(\'' + escapeHtml(tabName) + '\', ' + idx + ')">Ред.</button>';
-            html += '<button class="btn btn-xs btn-outline-danger" onclick="deleteTabRow(\'' + escapeHtml(tabName) + '\', ' + idx + ')">Удал.</button>';
-            html += '</td>';
             html += '</tr>';
         });
     }
@@ -943,20 +940,27 @@ function renderTabDataAsCards(tabName, items, columns) {
     } else {
         paginatedItems.forEach((item, idx) => {
             html += '<div class="col-md-6 col-lg-4 mb-3">';
-            html += '<div class="card h-100">';
+            html += '<div class="card h-100" style="cursor: pointer;" onclick="openTabRowEditModal(\'' + escapeHtml(tabName) + '\', ' + JSON.stringify(item).replace(/"/g, '&quot;') + ')">';
             html += '<div class="card-body">';
 
+            // First field as title (without label)
+            let isFirst = true;
             columns.forEach(col => {
-                html += '<div class="mb-2">';
-                html += '<small class="text-muted d-block font-weight-bold">' + escapeHtml(col) + ':</small>';
-                html += '<span>' + escapeHtml(String(item[col] || '')) + '</span>';
-                html += '</div>';
+                if (isFirst) {
+                    const value = item[col];
+                    const cellHtml = formatTabCellValue(value, col);
+                    html += '<h5 class="card-title mb-3">' + cellHtml + '</h5>';
+                    isFirst = false;
+                } else {
+                    html += '<div class="mb-2">';
+                    html += '<small class="text-muted d-block font-weight-bold">' + escapeHtml(col) + ':</small>';
+                    const value = item[col];
+                    const cellHtml = formatTabCellValue(value, col);
+                    html += '<span>' + cellHtml + '</span>';
+                    html += '</div>';
+                }
             });
 
-            html += '<div class="mt-3 d-flex gap-2">';
-            html += '<button class="btn btn-sm btn-outline-primary flex-grow-1" onclick="editTabRow(\'' + escapeHtml(tabName) + '\', ' + idx + ')">Ред.</button>';
-            html += '<button class="btn btn-sm btn-outline-danger flex-grow-1" onclick="deleteTabRow(\'' + escapeHtml(tabName) + '\', ' + idx + ')">Удал.</button>';
-            html += '</div>';
             html += '</div>';
             html += '</div>';
             html += '</div>';
@@ -1070,16 +1074,57 @@ function nextTabPage(tabName) {
 }
 
 /**
+ * Format cell value based on field type
+ */
+function formatTabCellValue(value, fieldName) {
+    // Handle empty/null values
+    if (value === null || value === undefined || value === '') {
+        return '';
+    }
+
+    // Handle boolean fields (да/нет suffix)
+    if (fieldName && fieldName.toLowerCase().includes('да/нет')) {
+        const isChecked = value === true || value === '1' || value === 'да' || value === 'true';
+        return '<input type="checkbox" disabled' + (isChecked ? ' checked' : '') + '>';
+    }
+
+    // Regular string value
+    return escapeHtml(String(value));
+}
+
+/**
+ * Open edit modal for tab row
+ */
+function openTabRowEditModal(tabName, itemData) {
+    // Parse item data if it's a string
+    let item = itemData;
+    if (typeof itemData === 'string') {
+        try {
+            item = JSON.parse(itemData);
+        } catch (e) {
+            console.error('Error parsing item data:', e);
+            showNotification('Ошибка открытия записи', 'error');
+            return;
+        }
+    }
+
+    // Get ID field from item
+    const idField = Object.keys(item).find(key => key.endsWith('ID'));
+    const itemId = idField ? item[idField] : null;
+
+    if (!itemId) {
+        showNotification('Не найден ID записи', 'error');
+        return;
+    }
+
+    // TODO: Open edit modal with item data
+    // For now, show placeholder
+    showNotification('Функция редактирования в разработке. Tab: ' + tabName + ', ID: ' + itemId, 'info');
+}
+
+/**
  * Placeholder functions for row actions (to be implemented)
  */
 function openAddRowDialog(tabName) {
     showNotification('Функция добавления в разработке', 'info');
-}
-
-function editTabRow(tabName, rowIndex) {
-    showNotification('Функция редактирования в разработке', 'info');
-}
-
-function deleteTabRow(tabName, rowIndex) {
-    showNotification('Функция удаления в разработке', 'info');
 }
