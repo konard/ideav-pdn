@@ -56,55 +56,6 @@ const parentOptions = computed(() => {
   return props.processes.filter(p => p['ПроцессID'] !== currentId);
 });
 
-// Computed properties for additional fields in dropdowns
-const additionalFieldsForStatus = computed(() =>
-  getAdditionalFields('Статус', form.value.t297)
-);
-
-const additionalFieldsForGroup = computed(() =>
-  getAdditionalFields('Группа', form.value.t300)
-);
-
-const additionalFieldsForInitiator = computed(() =>
-  getAdditionalFields('Инициатор', form.value.t365)
-);
-
-const additionalFieldsForProduct = computed(() =>
-  getAdditionalFields('Продукт', form.value.t305)
-);
-
-const additionalFieldsForService = computed(() =>
-  getAdditionalFields('Сервис', form.value.t313)
-);
-
-const additionalFieldsForIS = computed(() =>
-  getAdditionalFields('ИС', form.value.t319)
-);
-
-const additionalFieldsForPurpose = computed(() =>
-  getAdditionalFields('Цель обработки ПДн', form.value.t326)
-);
-
-const additionalFieldsForMicroPurpose = computed(() =>
-  getAdditionalFields('Микроцель обработки ПДн', form.value.t329)
-);
-
-const additionalFieldsForSubjectCount = computed(() =>
-  getAdditionalFields('Количество субъектов ПДн', form.value.t333)
-);
-
-const additionalFieldsForLegalBasis = computed(() =>
-  getAdditionalFields('Основание обработки ПДн', form.value.t336)
-);
-
-const additionalFieldsForProcessingMethod = computed(() =>
-  getAdditionalFields('Способ обработки ПДн', form.value.t347)
-);
-
-const additionalFieldsForProcessingPeriod = computed(() =>
-  getAdditionalFields('Срок обработки ПДн', form.value.t350)
-);
-
 const tabs = [
   { id: 'general', label: 'Общая информация' },
   { id: 'is', label: 'ИС' },
@@ -205,35 +156,6 @@ function getValueField(refName) {
   return keys.find(k => !k.endsWith('ID')) || keys[0];
 }
 
-function getAdditionalFields(refName, selectedId) {
-  if (!selectedId) return {};
-
-  const data = references.value[refName];
-  if (!data || !data.length) return {};
-
-  const selectedItem = data.find(item => {
-    const idField = getIdField(refName);
-    return item[idField] === selectedId;
-  });
-
-  if (!selectedItem) return {};
-
-  const idField = getIdField(refName);
-  const valueField = getValueField(refName);
-  const additionalFields = {};
-
-  Object.keys(selectedItem).forEach(key => {
-    if (key !== idField && key !== valueField) {
-      const value = selectedItem[key];
-      if (value && value.trim && value.trim() !== '') {
-        additionalFields[key] = value;
-      }
-    }
-  });
-
-  return additionalFields;
-}
-
 function handleTabsWheel(event) {
   // Only handle wheel events when not typing in a form field
   if (event.target.closest('.tabs')) {
@@ -310,11 +232,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('Статус')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForStatus).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForStatus" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
 
           <div class="form-group">
@@ -329,11 +246,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('Группа')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForGroup).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForGroup" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
 
           <div class="form-group">
@@ -362,11 +274,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('Инициатор')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForInitiator).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForInitiator" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
         </div>
 
@@ -384,11 +291,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('Продукт')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForProduct).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForProduct" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
 
           <div class="form-group">
@@ -403,11 +305,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('Сервис')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForService).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForService" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
 
           <div class="form-group">
@@ -422,11 +319,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('ИС')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForIS).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForIS" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
         </div>
 
@@ -444,11 +336,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('Цель обработки ПДн')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForPurpose).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForPurpose" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
 
           <div class="form-group">
@@ -463,11 +350,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('Микроцель обработки ПДн')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForMicroPurpose).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForMicroPurpose" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
 
           <div class="form-group">
@@ -496,11 +378,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('Количество субъектов ПДн')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForSubjectCount).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForSubjectCount" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
 
           <div class="form-group">
@@ -515,11 +392,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('Основание обработки ПДн')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForLegalBasis).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForLegalBasis" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
 
           <div class="form-group">
@@ -542,11 +414,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('Способ обработки ПДн')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForProcessingMethod).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForProcessingMethod" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
 
           <div class="form-group">
@@ -561,11 +428,6 @@ onBeforeUnmount(() => {
                 {{ item[getValueField('Срок обработки ПДн')] }}
               </option>
             </select>
-            <div v-if="Object.keys(additionalFieldsForProcessingPeriod).length > 0" class="additional-fields">
-              <div v-for="(value, key) in additionalFieldsForProcessingPeriod" :key="key" class="additional-field">
-                <strong>{{ key }}:</strong> {{ value }}
-              </div>
-            </div>
           </div>
 
           <div class="form-group">
@@ -800,25 +662,5 @@ onBeforeUnmount(() => {
 .btn-save:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.additional-fields {
-  margin-top: 8px;
-  padding: 10px 12px;
-  background: #f5f7fa;
-  border: 1px solid #e0e6ed;
-  border-radius: 6px;
-  font-size: 0.875rem;
-}
-
-.additional-field {
-  margin: 4px 0;
-  color: #555;
-  line-height: 1.5;
-}
-
-.additional-field strong {
-  color: #333;
-  font-weight: 600;
 }
 </style>
