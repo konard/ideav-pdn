@@ -796,6 +796,7 @@ function displayAdditionalFields(selectId, refName, selectedId) {
     let html = '';
     Object.keys(fields).forEach(function(key) {
         html += '<div class="additional-field"><strong>' + escapeHtml(key) + ':</strong> ' + escapeHtml(fields[key]) + '</div>';
+/*
  * Update additional fields display for a dropdown
  */
 function updateAdditionalFields(refName, selectedId, containerId) {
