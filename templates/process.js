@@ -304,6 +304,9 @@ function setupDependentDropdowns() {
     $(document).on('change', '#processLegalBasis', function() {
         toggleLegalBasisOther();
     });
+
+    // Setup additional fields display for all dropdowns
+    setupAdditionalFieldsListeners();
 }
 
 /**
@@ -452,17 +455,33 @@ function openEditForm(element) {
 function fillFormWithProcess(process) {
     $('#processName').val(decodeHtmlEntities(process['Процесс'] || ''));
     $('#processStatus').val(process['Статус'] || '');
+    updateAdditionalFields('Статус', process['Статус'], '#additionalFieldsStatus');
+
     $('#processGroup').val(process['Группа'] || '');
+    updateAdditionalFields('Группа', process['Группа'], '#additionalFieldsGroup');
+
     $('#processParent').val(process['Родительский (Процесс)'] || '');
+
     $('#processInitiator').val(process['Инициатор (Пользователь)'] || '');
+    updateAdditionalFields('Инициатор', process['Инициатор (Пользователь)'], '#additionalFieldsInitiator');
+
     $('#processProduct').val(process['Продукт'] || '');
+    updateAdditionalFields('Продукт', process['Продукт'], '#additionalFieldsProduct');
+
     $('#processService').val(process['Сервис'] || '');
+    updateAdditionalFields('Сервис', process['Сервис'], '#additionalFieldsService');
+
     $('#processIS').val(process['ИС'] || '');
+    updateAdditionalFields('ИС', process['ИС'], '#additionalFieldsIS');
 
     // Set purpose first, then filter micro-purposes, then set micro-purpose value
     $('#processPurpose').val(process['Цель обработки ПДн'] || '');
+    updateAdditionalFields('Цель обработки ПДн', process['Цель обработки ПДн'], '#additionalFieldsPurpose');
+
     filterMicroPurposeByPurpose();
+
     $('#processMicroPurpose').val(process['Микроцель обработки ПДн'] || '');
+    updateAdditionalFields('Микроцель обработки ПДн', process['Микроцель обработки ПДн'], '#additionalFieldsMicroPurpose');
 
     // Handle multiselect for categories
     const categories = process['Категории субъектов ПДн'];
@@ -472,6 +491,7 @@ function fillFormWithProcess(process) {
     }
 
     $('#processSubjectsCount').val(process['Количество субъектов ПДн'] || '');
+    updateAdditionalFields('Количество субъектов ПДн', process['Количество субъектов ПДн'], '#additionalFieldsSubjectsCount');
 
     // Handle legal basis with "Иное" option
     const legalBasisValue = process['Основание обработки ПДн'] || '';
@@ -484,12 +504,18 @@ function fillFormWithProcess(process) {
         toggleLegalBasisOther();
     } else {
         $('#processLegalBasis').val(legalBasisValue);
+        updateAdditionalFields('Основание обработки ПДн', legalBasisValue, '#additionalFieldsLegalBasis');
         toggleLegalBasisOther();
     }
 
     $('#processLegalAct').val(decodeHtmlEntities(process['Реквизиты нормативного правового акта'] || ''));
+
     $('#processMethod').val(process['Способ обработки ПДн'] || '');
+    updateAdditionalFields('Способ обработки ПДн', process['Способ обработки ПДн'], '#additionalFieldsMethod');
+
     $('#processTerm').val(process['Срок обработки ПДн'] || '');
+    updateAdditionalFields('Срок обработки ПДн', process['Срок обработки ПДн'], '#additionalFieldsTerm');
+
     $('#processDestruction').val(decodeHtmlEntities(process['Порядок уничтожения ПДн'] || ''));
 }
 
@@ -633,6 +659,86 @@ function getReferenceName(refName, id) {
     });
     if (!item) return null;
     return item[getValueField(item)];
+}
+
+/**
+ * Setup event listeners for additional fields display
+ */
+function setupAdditionalFieldsListeners() {
+    // Define mapping of select IDs to reference names and additional field containers
+    const dropdownMappings = [
+        { selectId: '#processStatus', refName: 'Статус', containerId: '#additionalFieldsStatus' },
+        { selectId: '#processGroup', refName: 'Группа', containerId: '#additionalFieldsGroup' },
+        { selectId: '#processInitiator', refName: 'Инициатор', containerId: '#additionalFieldsInitiator' },
+        { selectId: '#processProduct', refName: 'Продукт', containerId: '#additionalFieldsProduct' },
+        { selectId: '#processService', refName: 'Сервис', containerId: '#additionalFieldsService' },
+        { selectId: '#processIS', refName: 'ИС', containerId: '#additionalFieldsIS' },
+        { selectId: '#processPurpose', refName: 'Цель обработки ПДн', containerId: '#additionalFieldsPurpose' },
+        { selectId: '#processMicroPurpose', refName: 'Микроцель обработки ПДн', containerId: '#additionalFieldsMicroPurpose' },
+        { selectId: '#processSubjectsCount', refName: 'Количество субъектов ПДн', containerId: '#additionalFieldsSubjectsCount' },
+        { selectId: '#processLegalBasis', refName: 'Основание обработки ПДн', containerId: '#additionalFieldsLegalBasis' },
+        { selectId: '#processMethod', refName: 'Способ обработки ПДн', containerId: '#additionalFieldsMethod' },
+        { selectId: '#processTerm', refName: 'Срок обработки ПДн', containerId: '#additionalFieldsTerm' }
+    ];
+
+    // Add change listeners for each dropdown
+    dropdownMappings.forEach(function(mapping) {
+        $(document).on('change', mapping.selectId, function() {
+            updateAdditionalFields(mapping.refName, $(this).val(), mapping.containerId);
+        });
+    });
+}
+
+/**
+ * Get additional fields from selected reference item
+ */
+function getAdditionalFields(refName, selectedId) {
+    if (!selectedId || selectedId === LEGAL_BASIS_OTHER_VALUE) return {};
+
+    const data = references[refName];
+    if (!data || !data.length) return {};
+
+    const selectedItem = data.find(function(item) {
+        const idField = getIdField(item);
+        return item[idField] == selectedId;
+    });
+
+    if (!selectedItem) return {};
+
+    const idField = getIdField(selectedItem);
+    const valueField = getValueField(selectedItem);
+    const additionalFields = {};
+
+    Object.keys(selectedItem).forEach(function(key) {
+        if (key !== idField && key !== valueField) {
+            const value = selectedItem[key];
+            if (value && typeof value === 'string' && value.trim() !== '') {
+                additionalFields[key] = value;
+            }
+        }
+    });
+
+    return additionalFields;
+}
+
+/**
+ * Update additional fields display for a dropdown
+ */
+function updateAdditionalFields(refName, selectedId, containerId) {
+    const container = $(containerId);
+    const additionalFields = getAdditionalFields(refName, selectedId);
+
+    if (Object.keys(additionalFields).length === 0) {
+        container.hide().empty();
+        return;
+    }
+
+    let html = '';
+    Object.keys(additionalFields).forEach(function(key) {
+        html += '<div class="additional-field"><strong>' + escapeHtml(key) + ':</strong> ' + escapeHtml(additionalFields[key]) + '</div>';
+    });
+
+    container.html(html).show();
 }
 
 /**
