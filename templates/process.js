@@ -710,6 +710,7 @@ function getReferenceName(refName, id) {
  */
 function getAdditionalFields(refName, selectedId) {
     if (!selectedId) return {};
+}
 /*
  * Setup event listeners for additional fields display
  */
