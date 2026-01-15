@@ -61,6 +61,11 @@
     border-left: 4px solid #007bff;
 }
 
+.process-card .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
 .process-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
@@ -379,7 +384,7 @@ select.form-control[multiple] {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
-    margin-top: 12px;
+    margin-top: auto;
     padding-top: 12px;
     border-top: 1px solid #f0f0f0;
 }
