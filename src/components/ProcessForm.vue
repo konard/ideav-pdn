@@ -474,31 +474,11 @@ onBeforeUnmount(() => {
   background: #fff;
   border-radius: 12px;
   width: 100%;
-  max-width: 940px;
+  max-width: 700px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-@media (max-width: 980px) {
-  .form-container {
-    max-width: calc(100% - 40px);
-  }
-}
-
-@media (max-width: 768px) {
-  .form-container {
-    max-width: calc(100% - 32px);
-    max-height: 95vh;
-  }
-}
-
-@media (max-width: 480px) {
-  .form-container {
-    max-width: calc(100% - 20px);
-    border-radius: 8px;
-  }
 }
 
 .form-header {
