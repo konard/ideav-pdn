@@ -170,6 +170,7 @@
     font-weight: 500;
     white-space: nowrap;
     background: transparent;
+    flex-shrink: 0;
 }
 
 .nav-tabs .nav-link:hover {

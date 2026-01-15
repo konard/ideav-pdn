@@ -76,8 +76,25 @@ $(document).ready(function() {
     loadProcesses();
     setupSearchListener();
     setupDependentDropdowns();
+    setupTabsHorizontalScroll();
     setupDataTabListeners();
 });
+
+/**
+ * Setup horizontal scrolling for tabs using mouse wheel
+ */
+function setupTabsHorizontalScroll() {
+    $(document).on('wheel', '#formTabs', function(event) {
+        event.preventDefault();
+
+        // Get scroll container
+        const container = this;
+        const scrollAmount = event.originalEvent.deltaY > 0 ? 100 : -100;
+
+        // Apply horizontal scroll
+        container.scrollLeft += scrollAmount;
+    });
+}
 
 /**
  * Load processes from API
