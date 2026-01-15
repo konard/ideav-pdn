@@ -116,8 +116,11 @@ function loadProcesses() {
         success: function(data) {
             allProcesses = data || [];
             filteredProcesses = allProcesses;
-            renderProcesses();
-            hideLoadingState();
+            // Load references before first rendering of cards
+            loadReferencesIfNeeded(function() {
+                renderProcesses();
+                hideLoadingState();
+            });
         },
         error: function(xhr, status, error) {
             console.error('Error loading processes:', error);
