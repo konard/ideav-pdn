@@ -1142,15 +1142,21 @@ function setupFormTabsScrolling() {
             const isAtEnd = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 5;
 
             if (hasScroll) {
-                leftBtn.toggleClass('visible', !isAtStart);
-                rightBtn.toggleClass('visible', !isAtEnd);
-            } else {
-                leftBtn.removeClass('visible');
-                rightBtn.removeClass('visible');
-            }
+                if (isAtStart) {
+                    leftBtn.addClass('hidden').removeClass('visible');
+                } else {
+                    leftBtn.addClass('visible').removeClass('hidden');
+                }
 
-            leftBtn.prop('disabled', isAtStart);
-            rightBtn.prop('disabled', isAtEnd);
+                if (isAtEnd) {
+                    rightBtn.addClass('hidden').removeClass('visible');
+                } else {
+                    rightBtn.addClass('visible').removeClass('hidden');
+                }
+            } else {
+                leftBtn.addClass('hidden').removeClass('visible');
+                rightBtn.addClass('hidden').removeClass('visible');
+            }
         }, 100);
     }
 
@@ -1162,6 +1168,48 @@ function setupFormTabsScrolling() {
 
     // Update on modal show
     $('#processFormModal').on('shown.bs.modal', updateScrollButtons);
+
+    // Handle tab click to show full tab and partial next
+    tabsContainer.find('.nav-link').on('click', function() {
+        setTimeout(function() {
+            const clickedTab = tabsContainer.find('.nav-link.active');
+            if (clickedTab.length === 0) return;
+
+            const container = tabsContainer[0];
+            const tab = clickedTab[0];
+            const parent = tab.closest('.nav-item');
+
+            if (!parent) return;
+
+            // Calculate the position to scroll so the tab is fully visible and next tab peeks 30px
+            const tabOffsetInContainer = parent.offsetLeft;
+            const tabWidth = parent.offsetWidth;
+            const containerWidth = container.clientWidth;
+            const scrollWidth = container.scrollWidth;
+
+            // Calculate target scroll position
+            let targetScroll = container.scrollLeft + parent.offsetLeft - container.scrollLeft;
+
+            // If there's a next tab, ensure it peeks 30px
+            const nextTab = parent.nextElementSibling;
+            if (nextTab) {
+                const peekDistance = 30;
+                // Position so current tab is fully visible and next peeks by 30px
+                targetScroll = parent.offsetLeft + tabWidth + peekDistance - containerWidth;
+            } else {
+                // Last tab - just scroll to make it fully visible
+                targetScroll = parent.offsetLeft + tabWidth - containerWidth;
+            }
+
+            // Clamp to valid scroll range
+            targetScroll = Math.max(0, Math.min(targetScroll, scrollWidth - containerWidth));
+
+            // Smooth scroll to target
+            tabsContainer.animate({ scrollLeft: targetScroll }, 300, function() {
+                updateScrollButtons();
+            });
+        }, 0);
+    });
 
     // Initial check
     updateScrollButtons();
@@ -1183,8 +1231,17 @@ function scrollFormTabs(distance) {
         const isAtStart = tabs.scrollLeft === 0;
         const isAtEnd = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 5;
 
-        $('#formTabsScrollLeft').prop('disabled', isAtStart).toggleClass('visible', !isAtStart);
-        $('#formTabsScrollRight').prop('disabled', isAtEnd).toggleClass('visible', !isAtEnd);
+        if (isAtStart) {
+            $('#formTabsScrollLeft').addClass('hidden').removeClass('visible');
+        } else {
+            $('#formTabsScrollLeft').addClass('visible').removeClass('hidden');
+        }
+
+        if (isAtEnd) {
+            $('#formTabsScrollRight').addClass('hidden').removeClass('visible');
+        } else {
+            $('#formTabsScrollRight').addClass('visible').removeClass('hidden');
+        }
     }, 300);
 }
 

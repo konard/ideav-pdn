@@ -142,11 +142,12 @@
     align-items: center;
     gap: 0;
     border-bottom: 1px solid #e0e0e0;
+    position: relative;
 }
 
 .nav-tabs-scroll-btn {
-    flex-shrink: 0;
-    width: 40px;
+    position: absolute;
+    width: 36px;
     height: 48px;
     background: none;
     border: none;
@@ -155,13 +156,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: opacity 0.2s ease;
     opacity: 0;
     pointer-events: none;
-    font-size: 20px;
+    font-size: 18px;
+    z-index: 10;
+    top: 0;
 }
 
-.nav-tabs-scroll-btn:hover:not(:disabled) {
+.nav-tabs-scroll-btn#formTabsScrollLeft {
+    left: 0;
+}
+
+.nav-tabs-scroll-btn#formTabsScrollRight {
+    right: 0;
+}
+
+.nav-tabs-scroll-btn:hover:not(.hidden) {
     color: #007bff;
     background-color: rgba(0, 123, 255, 0.1);
 }
@@ -171,9 +182,8 @@
     pointer-events: auto;
 }
 
-.nav-tabs-scroll-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+.nav-tabs-scroll-btn.hidden {
+    display: none;
 }
 
 .nav-tabs {
