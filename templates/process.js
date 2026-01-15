@@ -299,10 +299,53 @@ function setupSearchListener() {
 function setupDependentDropdowns() {
     $(document).on('change', '#processPurpose', function() {
         filterMicroPurposeByPurpose();
+        displayAdditionalFields('processPurpose', 'Цель обработки ПДн', $(this).val());
     });
 
     $(document).on('change', '#processLegalBasis', function() {
         toggleLegalBasisOther();
+        displayAdditionalFields('processLegalBasis', 'Основание обработки ПДн', $(this).val());
+    });
+
+    // Setup listeners for displaying additional fields from references
+    $(document).on('change', '#processStatus', function() {
+        displayAdditionalFields('processStatus', 'Статус', $(this).val());
+    });
+
+    $(document).on('change', '#processGroup', function() {
+        displayAdditionalFields('processGroup', 'Группа', $(this).val());
+    });
+
+    $(document).on('change', '#processInitiator', function() {
+        displayAdditionalFields('processInitiator', 'Инициатор', $(this).val());
+    });
+
+    $(document).on('change', '#processProduct', function() {
+        displayAdditionalFields('processProduct', 'Продукт', $(this).val());
+    });
+
+    $(document).on('change', '#processService', function() {
+        displayAdditionalFields('processService', 'Сервис', $(this).val());
+    });
+
+    $(document).on('change', '#processIS', function() {
+        displayAdditionalFields('processIS', 'ИС', $(this).val());
+    });
+
+    $(document).on('change', '#processMicroPurpose', function() {
+        displayAdditionalFields('processMicroPurpose', 'Микроцель обработки ПДн', $(this).val());
+    });
+
+    $(document).on('change', '#processSubjectsCount', function() {
+        displayAdditionalFields('processSubjectsCount', 'Количество субъектов ПДн', $(this).val());
+    });
+
+    $(document).on('change', '#processMethod', function() {
+        displayAdditionalFields('processMethod', 'Способ обработки ПДн', $(this).val());
+    });
+
+    $(document).on('change', '#processTerm', function() {
+        displayAdditionalFields('processTerm', 'Срок обработки ПДн', $(this).val());
     });
 
     // Setup additional fields display for all dropdowns
@@ -662,6 +705,11 @@ function getReferenceName(refName, id) {
 }
 
 /**
+ * Get additional fields from a reference item
+ * Returns all fields except ID and main value field
+ */
+function getAdditionalFields(refName, selectedId) {
+    if (!selectedId) return {};
  * Setup event listeners for additional fields display
  */
 function setupAdditionalFieldsListeners() {
@@ -722,6 +770,31 @@ function getAdditionalFields(refName, selectedId) {
 }
 
 /**
+ * Display additional fields below a dropdown
+ */
+function displayAdditionalFields(selectId, refName, selectedId) {
+    const containerId = selectId + 'AdditionalFields';
+    let container = $('#' + containerId);
+
+    // Create container if it doesn't exist
+    if (container.length === 0) {
+        $('#' + selectId).parent().append('<div id="' + containerId + '" class="additional-fields" style="display:none;"></div>');
+        container = $('#' + containerId);
+    }
+
+    // Get additional fields
+    const fields = getAdditionalFields(refName, selectedId);
+
+    // If no fields, hide container
+    if (Object.keys(fields).length === 0) {
+        container.hide();
+        return;
+    }
+
+    // Build HTML for fields
+    let html = '';
+    Object.keys(fields).forEach(function(key) {
+        html += '<div class="additional-field"><strong>' + escapeHtml(key) + ':</strong> ' + escapeHtml(fields[key]) + '</div>';
  * Update additional fields display for a dropdown
  */
 function updateAdditionalFields(refName, selectedId, containerId) {

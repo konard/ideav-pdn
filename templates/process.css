@@ -335,7 +335,7 @@ select.form-control[multiple] {
     font-weight: bold;
 }
 
-/* Additional Fields Styles */
+/* Additional fields display below dropdowns */
 .additional-fields {
     margin-top: 8px;
     padding: 10px 12px;
