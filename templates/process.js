@@ -429,7 +429,7 @@ function filterMicroPurposeByPurpose() {
 }
 
 /**
- * Perform search across all fields
+ * Perform search across all fields including reference values
  */
 function performSearch() {
     const query = $('#searchInput').val().toLowerCase().trim();
@@ -438,9 +438,63 @@ function performSearch() {
         filteredProcesses = allProcesses;
     } else {
         filteredProcesses = allProcesses.filter(function(process) {
-            return Object.values(process).some(function(value) {
+            // Search in direct field values
+            const directMatch = Object.values(process).some(function(value) {
                 return String(value).toLowerCase().includes(query);
             });
+
+            if (directMatch) return true;
+
+            // Search in reference values (resolved names)
+            // Check each reference field for matching display names
+            const referenceFieldMappings = [
+                { processField: 'Статус', referenceName: 'Статус' },
+                { processField: 'Группа', referenceName: 'Группа' },
+                { processField: 'Инициатор (Пользователь)', referenceName: 'Инициатор' },
+                { processField: 'Продукт', referenceName: 'Продукт' },
+                { processField: 'Сервис', referenceName: 'Сервис' },
+                { processField: 'ИС', referenceName: 'ИС' },
+                { processField: 'Цель обработки ПДн', referenceName: 'Цель обработки ПДн' },
+                { processField: 'Микроцель обработки ПДн', referenceName: 'Микроцель обработки ПДн' },
+                { processField: 'Количество субъектов ПДн', referenceName: 'Количество субъектов ПДн' },
+                { processField: 'Основание обработки ПДн', referenceName: 'Основание обработки ПДн' },
+                { processField: 'Способ обработки ПДн', referenceName: 'Способ обработки ПДн' },
+                { processField: 'Срок обработки ПДн', referenceName: 'Срок обработки ПДн' }
+            ];
+
+            const referenceMatch = referenceFieldMappings.some(function(mapping) {
+                const fieldValue = process[mapping.processField];
+                if (fieldValue) {
+                    const referenceName = getReferenceName(mapping.referenceName, fieldValue);
+                    if (referenceName && String(referenceName).toLowerCase().includes(query)) {
+                        return true;
+                    }
+
+                    // Also check additional fields from references
+                    const additionalFields = getAdditionalFields(mapping.referenceName, fieldValue);
+                    if (additionalFields) {
+                        return Object.values(additionalFields).some(function(value) {
+                            return String(value).toLowerCase().includes(query);
+                        });
+                    }
+                }
+                return false;
+            });
+
+            if (referenceMatch) return true;
+
+            // Handle multiselect field (Категории субъектов ПДн)
+            const categories = process['Категории субъектов ПДн'];
+            if (categories) {
+                const categoryIds = categories.split(',').map(function(s) { return s.trim(); });
+                const categoryMatch = categoryIds.some(function(categoryId) {
+                    const categoryName = getReferenceName('Категории субъектов ПДн', categoryId);
+                    return categoryName && String(categoryName).toLowerCase().includes(query);
+                });
+                if (categoryMatch) return true;
+            }
+
+            return false;
         });
     }
 
@@ -704,13 +758,6 @@ function getReferenceName(refName, id) {
     return item[getValueField(item)];
 }
 
-/**
- * Get additional fields from a reference item
- * Returns all fields except ID and main value field
- */
-function getAdditionalFields(refName, selectedId) {
-    if (!selectedId) return {};
-}
 /*
  * Setup event listeners for additional fields display
  */
