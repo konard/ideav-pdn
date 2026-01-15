@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { fetchReferenceList, createProcess, saveProcess, REFERENCE_FIELDS } from '../api';
+import DataGridTab from './DataGridTab.vue';
 
 const props = defineProps({
   process: {
@@ -59,7 +60,11 @@ const tabs = [
   { id: 'general', label: 'Общая информация' },
   { id: 'is', label: 'ИС' },
   { id: 'purpose', label: 'Цель обработки' },
-  { id: 'method', label: 'Способ обработки' }
+  { id: 'method', label: 'Способ обработки' },
+  { id: 'pdn', label: 'ПДн', dataTab: 'ПДн' },
+  { id: 'expertise', label: 'Экспертиза', dataTab: 'Экспертиза' },
+  { id: 'risks', label: 'Риски', dataTab: 'Риски' },
+  { id: 'transfer', label: 'Передача', dataTab: 'Передача' }
 ];
 
 async function loadReferences() {
@@ -413,6 +418,46 @@ onMounted(() => {
             <small>Загрузка файлов в данной версии не поддерживается</small>
           </div>
         </div>
+
+        <!-- ПДн -->
+        <div v-show="activeTab === 'pdn'" class="tab-content">
+          <DataGridTab
+            v-if="process && process['ПроцессID']"
+            tab-name="ПДн"
+            :process-id="process['ПроцессID']"
+          />
+          <div v-else class="info-message">Сохраните процесс перед просмотром данных</div>
+        </div>
+
+        <!-- Экспертиза -->
+        <div v-show="activeTab === 'expertise'" class="tab-content">
+          <DataGridTab
+            v-if="process && process['ПроцессID']"
+            tab-name="Экспертиза"
+            :process-id="process['ПроцессID']"
+          />
+          <div v-else class="info-message">Сохраните процесс перед просмотром данных</div>
+        </div>
+
+        <!-- Риски -->
+        <div v-show="activeTab === 'risks'" class="tab-content">
+          <DataGridTab
+            v-if="process && process['ПроцессID']"
+            tab-name="Риски"
+            :process-id="process['ПроцессID']"
+          />
+          <div v-else class="info-message">Сохраните процесс перед просмотром данных</div>
+        </div>
+
+        <!-- Передача -->
+        <div v-show="activeTab === 'transfer'" class="tab-content">
+          <DataGridTab
+            v-if="process && process['ПроцессID']"
+            tab-name="Передача"
+            :process-id="process['ПроцессID']"
+          />
+          <div v-else class="info-message">Сохраните процесс перед просмотром данных</div>
+        </div>
       </div>
 
       <div v-if="error" class="error-message">{{ error }}</div>
@@ -614,5 +659,13 @@ onMounted(() => {
 .btn-save:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.info-message {
+  padding: 20px;
+  background: #e3f2fd;
+  color: #1565c0;
+  border-radius: 6px;
+  text-align: center;
 }
 </style>
