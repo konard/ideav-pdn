@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { fetchReferenceList, createProcess, saveProcess, REFERENCE_FIELDS } from '../api';
 
 const props = defineProps({
@@ -23,6 +23,7 @@ const activeTab = ref('general');
 const loading = ref(false);
 const saving = ref(false);
 const error = ref(null);
+const tabsContainer = ref(null);
 
 const references = ref({});
 const loadingRefs = ref(true);
@@ -155,10 +156,37 @@ function getValueField(refName) {
   return keys.find(k => !k.endsWith('ID')) || keys[0];
 }
 
+function handleTabsWheel(event) {
+  // Only handle wheel events when not typing in a form field
+  if (event.target.closest('.tabs')) {
+    const container = tabsContainer.value;
+    if (!container) return;
+
+    // Prevent default scrolling behavior
+    event.preventDefault();
+
+    // Scroll horizontally based on wheel delta
+    const scrollAmount = event.deltaY > 0 ? 100 : -100;
+    container.scrollLeft += scrollAmount;
+  }
+}
+
 watch(() => props.process, populateForm, { immediate: true });
 
 onMounted(() => {
   loadReferences();
+
+  // Add wheel event listener for horizontal scrolling
+  if (tabsContainer.value) {
+    tabsContainer.value.addEventListener('wheel', handleTabsWheel, { passive: false });
+  }
+});
+
+onBeforeUnmount(() => {
+  // Clean up event listener
+  if (tabsContainer.value) {
+    tabsContainer.value.removeEventListener('wheel', handleTabsWheel);
+  }
 });
 </script>
 
@@ -170,7 +198,7 @@ onMounted(() => {
         <button class="close-btn" @click="$emit('close')">&times;</button>
       </div>
 
-      <div class="tabs">
+      <div ref="tabsContainer" class="tabs">
         <button
           v-for="tab in tabs"
           :key="tab.id"
