@@ -529,7 +529,7 @@ function loadReferencesIfNeeded(callback) {
 
     const promises = REFERENCE_NAMES.map(function(name) {
         return $.ajax({
-            url: '/' + db + '/report/' + encodeURIComponent(name) + '?JSON_KV',
+            url: '/' + db + '/report/dic%20' + encodeURIComponent(name) + '?JSON_KV',
             method: 'GET',
             dataType: 'json'
         }).then(function(data) {
