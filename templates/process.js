@@ -171,20 +171,41 @@ function renderProcesses() {
 
     // Render cards
     const template = document.getElementById('processCardTemplate');
+    const searchQuery = $('#searchInput').val().trim();
+
     pageProcesses.forEach(function(process) {
         const clone = template.content.cloneNode(true);
         const card = clone.querySelector('.process-card-col');
 
-        // Set data
+        // Set data with highlighting if search is active
         const titleEl = card.querySelector('.process-title');
-        titleEl.textContent = process['Процесс'] || 'Без названия';
+        const processName = process['Процесс'] || 'Без названия';
+        if (searchQuery) {
+            titleEl.innerHTML = highlightText(processName, searchQuery);
+        } else {
+            titleEl.textContent = processName;
+        }
         titleEl.setAttribute('data-process-id', process['ПроцессID']);
 
-        card.querySelector('.process-id').textContent = 'ID: ' + process['ПроцессID'];
-        card.querySelector('.process-group').textContent = getReferenceName('Группа', process['Группа']) || '—';
-        card.querySelector('.process-subjects').textContent = getReferenceName('Количество субъектов ПДн', process['Количество субъектов ПДн']) || '—';
-        card.querySelector('.process-date').textContent = process['Дата создания'] || '—';
-        card.querySelector('.process-creator').textContent = process['Имя'] || '—';
+        const processIdText = 'ID: ' + process['ПроцессID'];
+        const groupName = getReferenceName('Группа', process['Группа']) || '—';
+        const subjectsCount = getReferenceName('Количество субъектов ПДн', process['Количество субъектов ПДн']) || '—';
+        const creationDate = process['Дата создания'] || '—';
+        const creatorName = process['Имя'] || '—';
+
+        if (searchQuery) {
+            card.querySelector('.process-id').innerHTML = highlightText(processIdText, searchQuery);
+            card.querySelector('.process-group').innerHTML = highlightText(groupName, searchQuery);
+            card.querySelector('.process-subjects').innerHTML = highlightText(subjectsCount, searchQuery);
+            card.querySelector('.process-date').innerHTML = highlightText(creationDate, searchQuery);
+            card.querySelector('.process-creator').innerHTML = highlightText(creatorName, searchQuery);
+        } else {
+            card.querySelector('.process-id').textContent = processIdText;
+            card.querySelector('.process-group').textContent = groupName;
+            card.querySelector('.process-subjects').textContent = subjectsCount;
+            card.querySelector('.process-date').textContent = creationDate;
+            card.querySelector('.process-creator').textContent = creatorName;
+        }
 
         grid.append(card);
     });
@@ -426,6 +447,26 @@ function filterMicroPurposeByPurpose() {
             microPurposeSelect.val(currentMicroPurposeValue);
         }
     }
+}
+
+/**
+ * Highlight text matches in a string with specified color
+ */
+function highlightText(text, query) {
+    if (!text || !query) return text;
+
+    const textStr = String(text);
+    const escapedQuery = escapeRegExp(query);
+    const regex = new RegExp('(' + escapedQuery + ')', 'gi');
+
+    return textStr.replace(regex, '<mark style="background-color: #fc0; padding: 0 2px;">$1</mark>');
+}
+
+/**
+ * Escape special regex characters
+ */
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**
